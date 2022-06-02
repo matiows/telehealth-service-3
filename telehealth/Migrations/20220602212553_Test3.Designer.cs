@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using telehealth.Context;
 
@@ -11,9 +12,10 @@ using telehealth.Context;
 namespace telehealth.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20220602212553_Test3")]
+    partial class Test3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -70,42 +72,11 @@ namespace telehealth.Migrations
                     b.Property<int>("CommentorId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("HelpId")
-                        .HasColumnType("int");
-
                     b.HasKey("CommentId");
 
                     b.HasIndex("BlogId");
 
-                    b.HasIndex("HelpId");
-
                     b.ToTable("Comments");
-                });
-
-            modelBuilder.Entity("telehealth.Models.Help", b =>
-                {
-                    b.Property<int>("HelpId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("HelpId"), 1L, 1);
-
-                    b.Property<string>("Body")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("PostDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("RequestorId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("HelpId");
-
-                    b.ToTable("Helps");
                 });
 
             modelBuilder.Entity("telehealth.Models.MedicalRecord", b =>
@@ -130,6 +101,8 @@ namespace telehealth.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("MedicalRecordId");
+
+                    b.HasIndex("PrescriptionId");
 
                     b.ToTable("MedicalRecords");
                 });
@@ -225,10 +198,17 @@ namespace telehealth.Migrations
                         .HasForeignKey("BlogId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
 
-                    b.HasOne("telehealth.Models.Help", null)
-                        .WithMany("Comments")
-                        .HasForeignKey("HelpId");
+            modelBuilder.Entity("telehealth.Models.MedicalRecord", b =>
+                {
+                    b.HasOne("telehealth.Models.Prescription", "Prescription")
+                        .WithMany()
+                        .HasForeignKey("PrescriptionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Prescription");
                 });
 
             modelBuilder.Entity("telehealth.Models.PrescriptionMedication", b =>
@@ -251,11 +231,6 @@ namespace telehealth.Migrations
                 });
 
             modelBuilder.Entity("telehealth.Models.Blog", b =>
-                {
-                    b.Navigation("Comments");
-                });
-
-            modelBuilder.Entity("telehealth.Models.Help", b =>
                 {
                     b.Navigation("Comments");
                 });

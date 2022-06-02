@@ -14,8 +14,12 @@ namespace telehealth.Context
         public DbSet<Blog> Blogs { get; set; }
 
         public DbSet<Comment> Comments { get; set; }
+        
+        public DbSet<Help> Helps { get; set; }
 
         public DbSet<Medication> Medications { get; set; }
+
+        public DbSet<MedicalRecord> MedicalRecords { get; set; }
 
         public DbSet<Prescription> Prescriptions { get; set; }
 
