@@ -45,6 +45,16 @@ namespace telehealth.Controllers
             return Ok(comments);
         }
 
+        [HttpGet("help/{helpId}")]
+        public async Task<ActionResult<List<Comment>>> GetByHelp(int helpId)
+        {
+            var comments = await context.Comments
+                .Where(comment => comment.HelpId == helpId)
+                .ToListAsync();
+
+            return Ok(comments);
+        }
+
         [HttpGet]
         public async Task<ActionResult<List<Comment>>> GetAll()
         {
@@ -56,15 +66,32 @@ namespace telehealth.Controllers
         [HttpPost]
         public async Task<ActionResult<Comment>> Post(CreateCommentDTO commentDTO)
         {
-            var blog = context.Blogs
-                .Where(blog => blog.BlogId == commentDTO.BlogId)
-                .Include(blog => blog.Comments)
-                .FirstOrDefault();
-
-            if (blog == null) return NotFound("Blog Not Found.");
-
             Comment comment = new();
-            comment.BlogId = blog.BlogId;
+
+            var blog = context.Blogs
+                    .Where(blog => blog.BlogId == commentDTO.BlogId)
+                    .Include(blog => blog.Comments)
+                    .FirstOrDefault();
+
+            var help = context.Helps
+                   .Where(help => help.HelpId == commentDTO.HelpId)
+                   .Include(help => help.Comments)
+                   .FirstOrDefault();
+
+            if (commentDTO.BlogId != 0)
+            { 
+
+                if (blog == null) return NotFound("Blog Not Found.");
+
+                comment.BlogId = blog.BlogId;
+
+            }
+            else
+            {
+                if (help == null) return NotFound("Help Not Found.");
+
+                comment.HelpId = help.HelpId;
+            }
             await _userService.CheckUser(commentDTO.CommentorId);
             comment.CommentorId = commentDTO.CommentorId;
             comment.Body = commentDTO.Body;
@@ -72,8 +99,15 @@ namespace telehealth.Controllers
             context.Comments.Add(comment);
 
             await context.SaveChangesAsync();
-            
-            blog.Comments.Add(comment);
+
+            if (commentDTO.BlogId != 0)
+            {
+                blog.Comments.Add(comment);
+            }
+            else
+            {
+                help.Comments.Add(comment);
+            }
 
             await context.SaveChangesAsync();
 

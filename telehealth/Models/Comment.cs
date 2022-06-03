@@ -8,7 +8,9 @@ namespace telehealth.Models
         [Key]
         public int CommentId { get; set; }
 
-        public int BlogId { get; set; }
+        public int BlogId { get; set; } = 0;
+
+        public int HelpId { get; set; } = 0;
 
         public int CommentorId { get; set; }
 
